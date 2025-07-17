@@ -1,0 +1,33 @@
+{
+    "content" : "CELLSPEC",
+    "name": "Standard",
+    "version": "0.0.0.1",
+    "date": "2025-07-10",
+    "types": [
+        {
+            "cellSpecId": "ALPHANUM",
+            "name": "Alphanumérique",
+            "regex": "^[^\t\n\r|;]*$"
+        },
+        {
+            "cellSpecId": "INTEGER",
+            "name": "Nombre entier",
+            "regex": "^[0-9]*$"
+        },
+        {
+            "cellSpecId": "AMOUNT",
+            "name": "Montant",
+            "regex": "^(?:(-?\\d+(\\.\\d+)?)|(\\d+(\\.\\d+)?-)|)$"
+        },
+        {
+            "cellSpecId": "DATE_YYYYMMDD",
+            "name": "Date (AAAAMMJJ)",
+            "regex": "^(?:([12]\\d{3})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])|)$"
+        },
+        {
+            "cellSpecId": "SENS_FEC",
+            "name": "Sens (-1/+1/C/D)",
+            "regex": "^(?:([+-]1)([CD]))$"
+        }
+    ]
+}

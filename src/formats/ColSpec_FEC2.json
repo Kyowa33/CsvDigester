@@ -1,0 +1,179 @@
+{
+    "content" : "COLSPEC",
+    "name": "FEC sans contrainte",
+    "version": "Article A47 A-1",
+    "date": "02/08/2013",
+    "link": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000027804775/",
+    "orderStrict" : "0",
+    "valueStrict" : "0",
+    "cols": [
+        {
+            "headerLib": "JournalCode",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["JournalLib"]
+        },
+        {
+            "headerLib": "JournalLib",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["EcritureNum"]
+        },
+        {
+            "headerLib": "EcritureNum",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["EcritureDate"]
+        },
+        {
+            "headerLib": "EcritureDate",
+            "cellSpecId" : "DATE_YYYYMMDD",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["CompteNum"]
+        },
+        {
+            "headerLib": "CompteNum",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": true,
+            "nextCols" : ["CompteLib"]
+        },
+        {
+            "headerLib": "CompteLib",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": true,
+            "nextCols" : ["CompAuxNum"]
+        },
+        {
+            "headerLib": "CompAuxNum",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": true,
+            "nextCols" : ["CompAuxLib"]
+        },
+        {
+            "headerLib": "CompAuxLib",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": true,
+            "nextCols" : ["PieceRef"]
+        },
+        {
+            "headerLib": "PieceRef",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["PieceDate"]
+        },
+        {
+            "headerLib": "PieceDate",
+            "cellSpecId" : "DATE_YYYYMMDD",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["EcritureLib"]
+        },
+        {
+            "headerLib": "EcritureLib",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": true,
+            "nextCols" : ["Debit", "Montant"]
+        },
+        {
+            "headerLib": "Debit",
+            "cellSpecId" : "AMOUNT",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["Credit"]
+        },
+        {
+            "headerLib": "Credit",
+            "cellSpecId" : "AMOUNT",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["EcritureLet"]
+        },
+        {
+            "headerLib": "EcritureLet",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["DateLet"]
+        },
+        {
+            "headerLib": "DateLet",
+            "cellSpecId" : "DATE_YYYYMMDD",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["ValidDate"]
+        },
+        {
+            "headerLib": "ValidDate",
+            "cellSpecId" : "DATE_YYYYMMDD",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["Montantdevise"]
+        },
+        {
+            "headerLib": "Montantdevise",
+            "cellSpecId" : "AMOUNT",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["Idevise"]
+        },
+        {
+            "headerLib": "Idevise",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["DateRglt"]
+        },
+        {
+            "headerLib": "Montant",
+            "cellSpecId" : "AMOUNT",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["Sens"]
+        },
+        {
+            "headerLib": "Sens",
+            "cellSpecId" : "SENS_FEC",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["EcritureLet"]
+        },
+        {
+            "headerLib": "DateRglt",
+            "cellSpecId" : "DATE_YYYYMMDD",
+            "mandatory": false,
+            "encodable": false,
+            "nextCols" : ["ModeRglt"]
+        },
+        {
+            "headerLib": "ModeRglt",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["NatOp"]
+        },
+        {
+            "headerLib": "NatOp",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": true,
+            "encodable": false,
+            "nextCols" : ["IdClient"]
+        },
+        {
+            "headerLib": "IdClient",
+            "cellSpecId" : "ALPHANUM",
+            "mandatory": false,
+            "encodable": false,
+            "nextCols" : []
+        }
+    ]
+}
