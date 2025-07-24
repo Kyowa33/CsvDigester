@@ -2,6 +2,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primeicons/primeicons.css';
 import { useState, useEffect } from 'react'
+//import Switcher from './component/Switcher.js';
 import './App.css'
 import { ProgressBar } from 'primereact/progressbar';
 import { CsvException } from './component/CsvException';
@@ -11,19 +12,26 @@ import { CsvConfig } from './component/CsvConfig';
 
 function App() {
 
-  const SENS_ENCRYPT = "ENCRYPT";
-  const SENS_DECRYPT = "DECRYPT";
+  const SENS_ENCRYPT = "0";
+  const SENS_DECRYPT = "1";
+
+  const STATUS_INIT = 0;
+  const STATUS_LOADING = 1;
+  const STATUS_READY = 2;
+  const STATUS_WORKING = 3;
 
   const [pass, setPass] = useState("");
   const [sens, setSens] = useState(SENS_ENCRYPT);
+  const [status, setStatus] = useState(STATUS_INIT);
   const [statusTxt, setStatusTxt] = useState("Veuillez sélectionner un fichier au format TXT ou CSV.");
   const [statusLvl, setStatusLvl] = useState(-1);
   const [progress, setProgress] = useState(0);
-  const [busy, setBusy] = useState(false);
+  const [fileData, setFileData] = useState(new ArrayBuffer(0));
   const [preview, setPreview] = useState([] as string[][]);
   const [fileResult, setFileResult] = useState(null as Uint8Array[] | null);
   const [fileName, setFileName] = useState("");
-  const [fecParser] = useState(new CsvParser());
+  const [fileNameResult, setFileNameResult] = useState("");
+  const [csvParser] = useState(new CsvParser());
   const [csvColBundle, setCsvColBundle] = useState(-1);
   const [csvConfig, setCsvConfig] = useState(new CsvConfig(undefined));
 
@@ -35,7 +43,7 @@ function App() {
     }
     catch (e) {
       if (e instanceof CsvException) {
-        fecParser.getReturnInfo().info = e;
+        csvParser.getReturnInfo().info = e;
         handleFecParserReturnInfo();
       } else {
         setStatusLvl(3);
@@ -139,16 +147,16 @@ function App() {
 
   const handleFecParserReturnInfo = () => {
 
-    if ((!fecParser)
-      || (!fecParser.getReturnInfo())
-      || (!fecParser.getReturnInfo().info)
-      || (fecParser.getReturnInfo().info.getCode() === CsvException.CODE_RET_UNKNOWN)) {
+    if ((!csvParser)
+      || (!csvParser.getReturnInfo())
+      || (!csvParser.getReturnInfo().info)
+      || (csvParser.getReturnInfo().info.getCode() === CsvException.CODE_RET_UNKNOWN)) {
       return;
     }
 
     setStatusLvl(2);
 
-    let returnInfo = fecParser.getReturnInfo();
+    let returnInfo = csvParser.getReturnInfo();
     let info = returnInfo.info;
     let warn = returnInfo.warn;
 
@@ -166,9 +174,9 @@ function App() {
           setStatusTxt(msg + " (" + info.getRow() + " lignes traitées)");
         }
         setProgress(100);
-        let result = fecParser.getGridDataCellSample();
+        let result = csvParser.getGridDataCellSample();
         setPreview(result);
-        let resultDat = fecParser.getGridData();
+        let resultDat = csvParser.getGridData();
         setFileResult(resultDat);
         break;
 
@@ -196,32 +204,38 @@ function App() {
         break;
 
     }
-    setBusy(false);
+    setStatus(STATUS_READY);
   }
 
-  const handleFileChange = async (event: any) => {
-    const file = event.target.files[0];
-
+  const resetResultInfos = () => {
+    setPreview([] as string[][]);
     setFileResult(null);
-    setPreview([]);
+    setFileNameResult("");
+    setProgress(0);
+    csvParser.reset();
+    setStatus(STATUS_INIT);
+  }
 
-    const reader = new FileReader();
+  // const resetInputInfos = () => {
+  //   setFileName("");
+  //   setFileData(new ArrayBuffer(0));
+  // }
 
-    reader.onload = async (e) => {
-      if (!e.target?.result) {
-        console.error("No buffer in reader.");
-        return;
-      }
+  const startTreatment = async () => {
+
+    if (fileData.byteLength > 0) {
       try {
+        resetResultInfos();
+        setFileNameResult(csvConfig.getOutputFileName(fileName, Number.parseInt(sens)))
         let proc = new CsvProcessor();
-        setBusy(true);
+        setStatus(STATUS_WORKING);
         setStatusLvl(-1);
         setStatusTxt("Traitement en cours...");
         CsvProcessor.setConfig(csvConfig); // config can have been changed by user
         CsvProcessor.applyColBundle(csvColBundle); // must reapply bundle according to new config
         await proc.init(pass);
-        let inputData = new Uint8Array(e.target.result as ArrayBuffer);
-        fecParser.init((sens === SENS_ENCRYPT), proc, inputData, (progressRate) => {
+        let inputData = new Uint8Array(fileData);
+        csvParser.init((sens === SENS_ENCRYPT), proc, inputData, (progressRate) => {
           if (progressRate) {
             setProgress(progressRate);
           } else {
@@ -229,29 +243,62 @@ function App() {
           }
         });
 
-        await fecParser.startParse();
+        await csvParser.startParse();
         handleFecParserReturnInfo();
       }
       catch (e) {
         if (e instanceof CsvException) {
-          fecParser.getReturnInfo().info = e;
+          csvParser.getReturnInfo().info = e;
           handleFecParserReturnInfo();
         } else {
           setStatusLvl(3);
           setStatusTxt("Erreur : " + e);
         }
-        setBusy(false);
+        setStatus(STATUS_READY);
       }
+    }
+  }
+
+  const handleStartCancel = async () => {
+    if (csvParser) {
+      if (status === STATUS_WORKING) {
+        csvParser.stop();
+        resetResultInfos();
+      }
+      else
+        if (status === STATUS_READY) {
+          await startTreatment();
+        }
+    }
+  }
+
+  const handleFileChange = async (event: any) => {
+    const file = event.target.files[0];
+
+    resetResultInfos();
+
+    setStatusLvl(-1);
+    setStatusTxt("Chargement en cours...");
+    setStatus(STATUS_LOADING);
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      if (!e.target?.result) {
+        console.error("No buffer in reader.");
+        setStatus(STATUS_INIT);
+        return;
+      }
+
+      setFileData(e.target.result as ArrayBuffer);
+      setStatusTxt("Prêt à démarrer");
+      setStatus(STATUS_READY);
     };
 
     reader.readAsArrayBuffer(file);
     setFileName(file.name);
   };
 
-
-  // const canRelaunch = () => {
-  //   return true;
-  // }
 
   const downloadCSV = (byteData: Uint8Array[], filename: string) => {
     const blob = new Blob(byteData, { type: 'text/csv;charset=utf-8;' });
@@ -290,20 +337,15 @@ function App() {
   }
 
   const handleDownload = () => {
-    if (busy) {
-      console.log("Busy - can not download.");
+    if (status !== STATUS_READY) {
       return;
     }
 
     if (fileResult)
-      downloadCSV(fileResult, fileName);
+      downloadCSV(fileResult, fileNameResult);
   }
 
-  const handleCancel = () => {
-    if (fecParser) {
-      fecParser.stop();
-    }
-  }
+
 
   const getAlertStyle = (severity: number) => {
     switch (severity) {
@@ -329,10 +371,14 @@ function App() {
     setCsvConfig(new CsvConfig(csvConfig));
   }
 
+  const isBusy = () => {
+    return (status !== STATUS_READY) && (status !== STATUS_INIT);
+  }
+
   return (
     <div className="App bg-white text-gray-800 min-h-screen p-6 font-sans">
       <div className="container max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-center">Cryptage / Décryptage de fichier CSV</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Encodage / Décodage de fichier CSV</h1>
 
         <div className="header-container mb-6">
           <input
@@ -340,11 +386,11 @@ function App() {
             id="pwd"
             value={pass}
             onChange={handlePassChange}
-            disabled={busy}
+            disabled={isBusy()}
             className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-1"
           />
           <label htmlFor="pwd" className="block text-sm text-gray-600">
-            Mot de passe de cryptage / décryptage
+            Clé de chiffrement (mot de passe)
           </label>
         </div>
 
@@ -353,7 +399,7 @@ function App() {
             id="sens"
             value={sens}
             onChange={selectSens}
-            disabled={busy}
+            disabled={isBusy()}
             className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             <option value={SENS_ENCRYPT}>Crypter</option>
@@ -366,7 +412,7 @@ function App() {
             id="colBundle"
             value={csvColBundle}
             onChange={selectColBundle}
-            disabled={busy}
+            disabled={isBusy()}
             className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
           >
             {
@@ -386,7 +432,7 @@ function App() {
               checked={csvConfig.mustFollowColOrder}
               onChange={handleChangeFollowColOrder}
             />
-            Respecter l'ordre des colonnes
+            &nbsp;Respecter l'ordre des colonnes
           </label>
         </div>
 
@@ -397,7 +443,7 @@ function App() {
               checked={csvConfig.mustTestColRegExp}
               onChange={handleChangeTestColRegExp}
             />
-            Respecter le format des colonnes
+            &nbsp;Respecter le format des colonnes
           </label>
         </div>
 
@@ -408,7 +454,7 @@ function App() {
               id="fileInput"
               onChange={handleFileChange}
               accept=".csv, .txt"
-              disabled={busy}
+              disabled={isBusy()}
               className="hidden"
             />
             <label
@@ -421,11 +467,12 @@ function App() {
 
           <div>
             <button
-              onClick={handleCancel}
-              style={{ display: busy ? "block" : "none" }}
-              className="w-full px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-all"
+              onClick={handleStartCancel}
+              style={{ "display": (fileData.byteLength > 0) ? "block" : "none" }}
+              className={isBusy() ? "w-full px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded-md hover:bg-red-200 transition-all"
+                : "w-full px-4 py-2 bg-blue-100 text-blue-700 border border-blue-300 rounded-md hover:bg-blue-200 transition-all"}
             >
-              Annuler le traitement
+              {isBusy() ? "Annuler le traitement" : "Démarrer le traitement"}<br/>{fileName}
             </button>
           </div>
 
@@ -435,7 +482,7 @@ function App() {
 
           <div className="progress mt-2">
             <ProgressBar value={progress} showValue
-              className="h-8 flex items-center" style={{ transition: 'none', animation: 'none' }}/>
+              className="h-8 flex items-center" style={{ transition: 'none', animation: 'none' }} />
           </div>
 
           <div style={{ display: preview.length > 0 ? "block" : "none" }}>
@@ -464,14 +511,14 @@ function App() {
           <div
             style={{
               display:
-                fecParser.getReturnInfo().warn.length > 0 ? "block" : "none",
+                csvParser.getReturnInfo().warn.length > 0 ? "block" : "none",
             }}
           >
             <label className="block mb-2 font-medium">Remarques</label>
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto border-collapse border border-yellow-300">
                 <tbody>
-                  {fecParser
+                  {csvParser
                     .getReturnInfo()
                     .warn.slice(0, CsvParser.MAX_SAMPLE_ROWS)
                     .map((item, index) => (
@@ -481,11 +528,11 @@ function App() {
                         </td>
                       </tr>
                     ))}
-                  {fecParser.getReturnInfo().warn.length >
+                  {csvParser.getReturnInfo().warn.length >
                     CsvParser.MAX_SAMPLE_ROWS && (
                       <tr>
                         <td className="border border-yellow-300 px-3 py-2 text-sm text-yellow-700">
-                          ...{fecParser.getReturnInfo().warn.length - CsvParser.MAX_SAMPLE_ROWS} autres remarques.
+                          ...{csvParser.getReturnInfo().warn.length - CsvParser.MAX_SAMPLE_ROWS} autres remarques.
                         </td>
                       </tr>
                     )}
@@ -497,13 +544,13 @@ function App() {
           <div>
             <button
               onClick={handleDownload}
-              disabled={busy || !fileResult}
-              className={`w-full px-4 py-2 rounded-md font-medium transition-colors ${busy || !fileResult
+              disabled={isBusy() || !fileResult}
+              className={`w-full px-4 py-2 rounded-md font-medium transition-colors ${isBusy() || !fileResult
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-green-600 text-white hover:bg-green-700"
                 }`}
             >
-              Télécharger le résultat - {fileName}
+              Télécharger le résultat<br />{(fileResult) ? fileNameResult : ""}
             </button>
           </div>
         </div>
