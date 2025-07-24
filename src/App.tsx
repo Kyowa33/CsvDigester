@@ -212,7 +212,6 @@ function App() {
     setFileResult(null);
     setFileNameResult("");
     setProgress(0);
-    csvParser.reset();
     setStatus(STATUS_INIT);
   }
 
