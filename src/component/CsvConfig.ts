@@ -13,23 +13,29 @@ export class CsvConfig {
         }
     }
 
-    private insertSuffix(filename : string, suffix : string) : string {
-        const lastDotIndex = filename.lastIndexOf(".");
-        if (lastDotIndex > 0) {
-            // Il y a une extension
-            return filename.slice(0, lastDotIndex) + suffix + filename.slice(lastDotIndex);
-        } else {
-            // Pas d'extension, on ajoute à la fin
-            return filename + suffix;
-        }
-    }
-
     public getOutputFileName(filename : string, action: number) : string {
         if (filename === "") {
             return "";
         }
 
-        return this.insertSuffix(filename, this.fileNameSuffixTab[action]);
+        let lastDotIndex = filename.lastIndexOf(".");
+        if (lastDotIndex < 0) {
+            lastDotIndex = filename.length;
+        }
+
+        let name = filename.slice(0, lastDotIndex);
+        let ext = filename.slice(lastDotIndex+1);
+
+        for (let sufCur in this.fileNameSuffixTab) {
+            const suf = this.fileNameSuffixTab[sufCur];
+            let sufIdx = lastDotIndex-suf.length;
+            if (filename.indexOf(suf) === sufIdx) {
+                name = filename.slice(0, sufIdx);
+                break;
+            }
+        }
+
+        return name + this.fileNameSuffixTab[action] + ((ext.length > 0) ? "." + ext : "");
     }
 
 }

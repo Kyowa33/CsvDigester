@@ -215,11 +215,6 @@ function App() {
     setStatus(STATUS_INIT);
   }
 
-  // const resetInputInfos = () => {
-  //   setFileName("");
-  //   setFileData(new ArrayBuffer(0));
-  // }
-
   const startTreatment = async () => {
 
     if (fileData.byteLength > 0) {
