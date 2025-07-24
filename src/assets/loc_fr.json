@@ -1,7 +1,9 @@
 {
+    "locale":"fr",
     "page.title":"",
     "input.key":"",
-    "input.cipher":"",
+    "input.sens.cipher":"",
+    "input.sens.uncipher":"",
     "input.bundle.col":"",
     "input.checkOrder":"",
     "input.checkValue":"",
