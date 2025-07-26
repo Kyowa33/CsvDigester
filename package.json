@@ -48,7 +48,8 @@
       "target": "dmg"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "category": "Utility"
     },
     "directories": {
       "output": "dist-electron"
