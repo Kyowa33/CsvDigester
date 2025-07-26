@@ -32,7 +32,7 @@ jobs:
 
       - name: Package with Electron Builder
         run: npx electron-builder --config
-        env:
+       # env:
           # Si tu veux signer macOS
           # CSC_LINK: ${{ secrets.CSC_LINK }}
           # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
