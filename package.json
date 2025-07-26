@@ -39,13 +39,15 @@
     "vite": "^7.0.3"
   },
   "build": {
-    "appId": "com.CsvDigester",
+    "appId": "com.electron.CsvDigester",
     "productName": "CsvDigester",
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "category": "Utility"
     },
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "category": "Utility"
     },
     "linux": {
       "target": "AppImage",
