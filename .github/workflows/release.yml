@@ -58,17 +58,28 @@ jobs:
       - name: 🔹 List files
         run: ls -la dist-electron/
 
+      - name: 🔹 Find Release Assets (Windows)
+        run: |
+          FILE=$(find dist-electron -name "CsvDigester*.exe" -type f | head -n 1)
+          if [ -z "$FILE" ]; then
+            echo "❌ Aucun fichier .exe trouvé"
+            exit 1
+          fi
+          echo "✅ Fichier trouvé : $FILE"
+          echo "asset_path=$FILE" >> $GITHUB_OUTPUT
+        id: find_windows
+
       - name: 🔹 Upload Release Assets (Windows)
         uses: actions/upload-release-asset@v1
+        if: steps.find_windows.outputs.asset_path != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/CsvDigester*.exe
+          asset_path: ${{ steps.find_windows.outputs.asset_path }}
           asset_name: CsvDigester-${{ github.event.release.tag_name }}-win.exe
           asset_content_type: application/vnd.microsoft.portable-executable
-        if: steps.create_release.outputs.upload_url != '' || contains(github.event_name, 'release')
-
+        
       - name: 🔹 Upload Release Assets (macOS)
         uses: actions/upload-release-asset@v1
         env:
