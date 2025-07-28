@@ -86,7 +86,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/CsvDigester*.dmg
+          asset_path: dist-electron/CsvDigester-${{ github.event.release.tag_name }}-arm64.dmg
           asset_name: CsvDigester-${{ github.event.release.tag_name }}-arm64.dmg
           asset_content_type: application/x-apple-diskimage
 
@@ -96,6 +96,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/CsvDigester*.AppImage
+          asset_path: dist-electron/CsvDigester-${{ github.event.release.tag_name }}.AppImage
           asset_name: CsvDigester-${{ github.event.release.tag_name }}-linux.AppImage
           asset_content_type: application/octet-stream
