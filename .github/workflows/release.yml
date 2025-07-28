@@ -1,0 +1,101 @@
+name: 🚀 Release App
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - name: 🔹 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔹 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: 🔹 Install dependencies
+        run: npm install
+
+      - name: 🔹 Build app (Vite + TypeScript)
+        run: npm run build
+
+      - name: 🔹 Package with Electron Builder
+        run: npx electron-builder --config
+        env:
+          # Utile si tu signes pour macOS
+          # CSC_LINK: ${{ secrets.CSC_LINK }}
+          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      - name: 🔹 Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist-electron/**
+          retention-days: 7
+          if-no-files-found: error
+
+  # Étape finale : Attacher les artefacts à la release
+  upload-release:
+    name: 📎 Upload to Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔹 Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-electron
+          merge-multiple: true
+
+      - name: 🔹 List files
+        run: ls -la dist-electron/
+
+      - name: 🔹 Create Release (if not exists)
+        id: create_release
+        uses: actions/create-release@v1
+        if: ${{ !startsWith(github.event.release.tag_name, 'v') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          release_name: Release ${{ github.event.release.tag_name }}
+          draft: false
+          prerelease: false
+
+      - name: 🔹 Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
+          asset_path: dist-electron/CsvDigester-*.exe
+          asset_name: CsvDigester-${{ github.event.release.tag_name }}-win.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+        if: steps.create_release.outputs.upload_url != '' || contains(github.event_name, 'release')
+
+      - name: 🔹 Upload Release Assets (macOS)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
+          asset_path: dist-electron/CsvDigester-*.dmg
+          asset_name: CsvDigester-${{ github.event.release.tag_name }}-mac.dmg
+          asset_content_type: application/x-apple-diskimage
+
+      - name: 🔹 Upload Release Assets (Linux)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
+          asset_path: dist-electron/CsvDigester-*.AppImage
+          asset_name: CsvDigester-${{ github.event.release.tag_name }}-linux.AppImage
+          asset_content_type: application/octet-stream

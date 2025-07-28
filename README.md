@@ -11,7 +11,7 @@ L'encodage des caractères est UTF-8.
 
 Cette application s'exécute dans un navigateur, sans traitement serveur.
 L'application est hébergée sur un espace statique (serveur de fichiers sans traitement de données serveur).
-Une fois chargée, elle peut fonctionner hors ligne.
+
 Le seul accès à l'hébergement statique au démarrage permet de vérifier une éventuelle mise à jour de l'application.
 
 Toutes les données intégrées par l'application restent sur le poste de l'utilisateur.
