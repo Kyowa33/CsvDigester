@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         if: steps.find_windows.outputs.asset_path != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
           asset_path: ${{ steps.find_windows.outputs.asset_path }}
@@ -83,7 +83,7 @@ jobs:
       - name: 🔹 Upload Release Assets (macOS)
         uses: actions/upload-release-asset@v1
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
           asset_path: dist-electron/CsvDigester*.dmg
@@ -93,7 +93,7 @@ jobs:
       - name: 🔹 Upload Release Assets (Linux)
         uses: actions/upload-release-asset@v1
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
           asset_path: dist-electron/CsvDigester*.AppImage
