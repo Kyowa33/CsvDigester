@@ -1,8 +1,7 @@
 name: 🚀 Release App
 
 on:
-  release:
-    types: [published]
+  push:
 
 jobs:
   build:
