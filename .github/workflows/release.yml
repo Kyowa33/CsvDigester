@@ -64,8 +64,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/CsvDigester-*.exe
-          asset_name: CsvDigester-${{ github.event.release.tag_name }}-win.exe
+          asset_path: dist-electron/CsvDigester*.exe
+          asset_name: CsvDigester Setup ${{ github.event.release.tag_name }}.exe
           asset_content_type: application/vnd.microsoft.portable-executable
         if: steps.create_release.outputs.upload_url != '' || contains(github.event_name, 'release')
 
