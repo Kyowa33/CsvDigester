@@ -58,7 +58,7 @@ jobs:
       - name: 🔹 List files
         run: ls -la dist-electron/
 
-      - name: 🔹 Upload Release Assets
+      - name: 🔹 Upload Release Assets (Windows)
         uses: actions/upload-release-asset@v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
