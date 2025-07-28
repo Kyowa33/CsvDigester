@@ -38,6 +38,7 @@ jobs:
       - name: 🔹 Upload artifact
         uses: actions/upload-artifact@v4
         with:
+          name: release-artifact-${{ matrix.os }}
           path: dist-electron/**
           retention-days: 7
           if-no-files-found: error
