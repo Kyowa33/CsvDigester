@@ -1,7 +1,7 @@
 name: 🚀 Release App
 
 on:
-  push:
+  release:
 
 jobs:
   build:
@@ -60,11 +60,9 @@ jobs:
 
       - name: 🔹 Create Release (if not exists)
         id: create_release
-        uses: actions/create-release@v1
-        if: ${{ !startsWith(github.event.release.tag_name, 'v') }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/create-release@v4
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.event.release.tag_name }}
           release_name: Release ${{ github.event.release.tag_name }}
           draft: false
