@@ -64,8 +64,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/
-          asset_name: CsvDigester Setup ${{ github.event.release.tag_name }}.exe
+          asset_path: dist-electron/CsvDigester*.exe
+          asset_name: CsvDigester-${{ github.event.release.tag_name }}-win.exe
           asset_content_type: application/vnd.microsoft.portable-executable
         if: steps.create_release.outputs.upload_url != '' || contains(github.event_name, 'release')
 
@@ -75,7 +75,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/
+          asset_path: dist-electron/CsvDigester*.dmg
           asset_name: CsvDigester-${{ github.event.release.tag_name }}-arm64.dmg
           asset_content_type: application/x-apple-diskimage
 
@@ -85,6 +85,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url || github.event.release.upload_url }}
-          asset_path: dist-electron/
-          asset_name: CsvDigester-${{ github.event.release.tag_name }}.AppImage
+          asset_path: dist-electron/CsvDigester*.AppImage
+          asset_name: CsvDigester-${{ github.event.release.tag_name }}-linux.AppImage
           asset_content_type: application/octet-stream
