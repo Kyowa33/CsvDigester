@@ -41,6 +41,11 @@
   "build": {
     "appId": "com.electron.CsvDigester",
     "productName": "CsvDigester",
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
     "win": {
       "target": "nsis",
       "category": "Utility"
