@@ -46,20 +46,23 @@
         "provider": "github"
       }
     ],
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "package.json"
+    ],
     "win": {
-      "target": "nsis",
-      "category": "Utility"
+      "target": "nsis"
     },
     "mac": {
-      "target": "dmg",
-      "category": "Utility"
+      "target": "dmg"
     },
     "linux": {
       "target": "AppImage",
       "category": "Utility"
-    },
-    "directories": {
-      "output": "dist-electron"
     }
   }
 }
